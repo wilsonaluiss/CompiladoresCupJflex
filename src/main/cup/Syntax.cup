@@ -1,0 +1,161 @@
+package umg.compiladores;
+
+import java_cup.runtime.*;
+
+terminal PUNTO_Y_COMA, SUMA, RESTA, MULTIPLICACION, DIVISION, PARENTESIS_ABRE, PARENTESIS_CIERRA, NUMERO,
+    PUNTO, MENOR_QUE, IGUAL, MAYOR_QUE, POTENCIA, DIFERENTE, MENOR_O_IGUAL, MAYOR_O_IGUAL, DO_, IF,
+    FOR, INT, OUT, ELSE, LONG, FLOAT, PRINT, IN, SHORT, WHILE, STRING, SYSTEM, DOUBLE, BOOLEAN,
+    PRINTLN, NUM_ENTERO, NUM_FLOAT, NUM_DOUBLE, PUBLIC, STATIC, VOID,  ARGS, PRIVATE, RETURN, PALABRA, UNARY_MINUS,LLAVE_ABRE, LLAVE_CIERRA,
+    NEXT, NEXT_INT, NEXT_FLOAT, NEXT_DOUBLE, COMILLAS, TRUE, FALSE, CORCHETE_ABRE,  CORCHETE_CIERRA, NEGACION, CORCHETE_ABRE2D, CORCHETE_CIERRA2D,
+    MAIN, COMA , AND , OR , CASE , BREAK, SWITCH , DEFAULT, NEXT_BOOLEAN,  DOS_PUNTOS, CLASS, SCANNER, NEW , NEXT_LINE, NEXT_BYTE, NEXT_LONG, NEXT_SHORT
+;
+
+
+non terminal expr, Declaracion, METODO_MAIN, EstructuraSelectiva, EstructuraRepetitiva, 
+    ImpresionMensajes,  RetornoDatos, LecturaDatos, Parametros, dentroWitch, CLASS_INICIO, ELEMENTOS, METODO, TIPO_DATOS, ELEMENTOS_MAIN, ELEMENTOS_SIN_MAIN,
+    expr_prima, Scaneo
+;
+
+precedence left SUMA, RESTA;
+precedence left MULTIPLICACION, DIVISION;
+precedence left POTENCIA;
+precedence left AND;
+precedence left OR;
+
+start with CLASS_INICIO;
+
+
+CLASS_INICIO ::= PUBLIC CLASS PALABRA LLAVE_ABRE ELEMENTOS  LLAVE_CIERRA 
+;
+
+ELEMENTOS ::= METODO_MAIN | Declaracion |  EstructuraSelectiva | METODO 
+;
+
+METODO_MAIN ::= PUBLIC STATIC VOID MAIN PARENTESIS_ABRE STRING CORCHETE_ABRE 
+           CORCHETE_CIERRA ARGS PARENTESIS_CIERRA LLAVE_ABRE  ELEMENTOS_MAIN LLAVE_CIERRA
+           ELEMENTOS_SIN_MAIN
+;
+
+ELEMENTOS_MAIN ::=  Declaracion 
+                    |  EstructuraSelectiva 
+                    |
+;
+
+ELEMENTOS_SIN_MAIN ::=  Declaracion 
+                        | EstructuraSelectiva 
+                        | METODO 
+                        | expr
+;
+
+
+Declaracion ::= TIPO_DATOS PALABRA expr
+                | TIPO_DATOS CORCHETE_ABRE CORCHETE_CIERRA PALABRA expr
+                | TIPO_DATOS CORCHETE_ABRE2D CORCHETE_CIERRA2D PALABRA expr
+;
+
+TIPO_DATOS ::= FLOAT 
+                | DOUBLE 
+                | INT 
+                | LONG 
+                | SHORT 
+                | STRING
+                | BOOLEAN 
+                | VOID
+                | STATIC
+;
+
+
+METODO ::= PUBLIC TIPO_DATOS PALABRA PARENTESIS_ABRE Parametros PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+            | PRIVATE TIPO_DATOS PALABRA  PARENTESIS_ABRE Parametros PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+            | PUBLIC TIPO_DATOS PALABRA PARENTESIS_ABRE PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+            | PRIVATE TIPO_DATOS PALABRA PARENTESIS_ABRE PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+;
+
+
+
+
+Parametros ::= Declaracion
+                | Declaracion PUNTO_Y_COMA Parametros
+                | Declaracion COMA Parametros
+; 
+
+
+RetornoDatos ::= RETURN expr PUNTO_Y_COMA
+;
+
+
+expr ::= PARENTESIS_ABRE expr PARENTESIS_CIERRA expr_prima
+       | RESTA expr %prec UNARY_MINUS
+       | Declaracion expr
+       | EstructuraSelectiva expr
+       | EstructuraRepetitiva expr 
+       | LecturaDatos expr
+       | ImpresionMensajes expr
+       | METODO expr
+       | RetornoDatos
+       | NUMERO
+       | NUM_ENTERO
+       | NUM_DOUBLE
+       | NUM_FLOAT
+       | PALABRA
+       | NEGACION
+       | TRUE
+       | FALSE
+       | PUNTO_Y_COMA
+       | Scaneo
+ ;
+
+expr_prima ::= SUMA expr expr_prima
+              | RESTA expr expr_prima
+              | MULTIPLICACION expr expr_prima
+              | DIVISION expr expr_prima
+              | POTENCIA expr expr_prima
+              | MENOR_QUE expr expr_prima
+              | MAYOR_QUE expr expr_prima
+              | MENOR_O_IGUAL expr expr_prima
+              | MAYOR_O_IGUAL expr expr_prima
+              | IGUAL expr expr_prima
+              | DIFERENTE expr expr_prima
+              | AND expr expr_prima
+              | OR expr expr_prima
+ ;
+
+
+
+
+
+EstructuraSelectiva ::= IF PARENTESIS_ABRE expr PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+                      | IF PARENTESIS_ABRE expr PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA ELSE LLAVE_ABRE expr LLAVE_CIERRA
+                      | SWITCH PARENTESIS_ABRE expr PARENTESIS_CIERRA LLAVE_ABRE dentroWitch LLAVE_CIERRA 
+;
+
+dentroWitch ::= CASE COMILLAS expr COMILLAS DOS_PUNTOS expr BREAK PUNTO_Y_COMA 
+            | CASE COMILLAS expr COMILLAS DOS_PUNTOS expr BREAK PUNTO_Y_COMA dentroWitch
+            | CASE  expr  DOS_PUNTOS expr BREAK PUNTO_Y_COMA 
+            | CASE  expr  DOS_PUNTOS expr BREAK PUNTO_Y_COMA dentroWitch
+            | DEFAULT DOS_PUNTOS expr BREAK PUNTO_Y_COMA 
+;
+                 
+
+EstructuraRepetitiva ::= FOR PARENTESIS_ABRE expr PUNTO_Y_COMA expr PUNTO_Y_COMA expr PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+                        | WHILE PARENTESIS_ABRE expr PARENTESIS_CIERRA LLAVE_ABRE expr LLAVE_CIERRA
+                        | DO_ LLAVE_ABRE expr LLAVE_CIERRA WHILE PARENTESIS_ABRE expr PARENTESIS_CIERRA
+;
+
+
+Scaneo ::= SCANNER PALABRA IGUAL NEW SCANNER PARENTESIS_ABRE SYSTEM PUNTO IN PARENTESIS_CIERRA PUNTO_Y_COMA
+;
+
+LecturaDatos ::= SYSTEM PUNTO OUT PUNTO PRINT PARENTESIS_ABRE COMILLAS PALABRA COMILLAS PARENTESIS_CIERRA PUNTO_Y_COMA
+                | SYSTEM PUNTO OUT PUNTO PRINTLN PARENTESIS_ABRE COMILLAS PALABRA COMILLAS  PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_LINE PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_INT PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_BYTE PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_FLOAT PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_LONG PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_SHORT PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_DOUBLE PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+                | TIPO_DATOS PALABRA IGUAL PALABRA PUNTO NEXT_BOOLEAN PARENTESIS_ABRE PARENTESIS_CIERRA PUNTO_Y_COMA
+;
+
